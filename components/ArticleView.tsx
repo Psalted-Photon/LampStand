@@ -207,7 +207,7 @@ export default function ArticleView({ article, category, onBack }: ArticleViewPr
               <div className="space-y-4">
                 <div className="flex items-center gap-3">
                   <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-blue-500"></div>
-                  <span className="text-gray-600">Analyzing with Ollama...</span>
+                  <span className="text-gray-600">Analyzing with AI...</span>
                 </div>
                 <div className="bg-gray-50 p-4 rounded-lg">
                   <pre className="whitespace-pre-wrap text-sm text-gray-700 font-mono">

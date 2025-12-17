@@ -3,6 +3,7 @@
 import { NewsArticle, Theme } from '@/lib/types';
 import { useState } from 'react';
 import ReactMarkdown from 'react-markdown';
+import DOMPurify from 'isomorphic-dompurify';
 
 interface ArticleViewProps {
   article: NewsArticle;
@@ -30,7 +31,7 @@ export default function ArticleView({ article, category, onBack }: ArticleViewPr
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          articleText: article.content || article.description || article.title,
+          articleText: article.fullContent || article.content || article.description || article.title,
           articleUrl: article.url,
           articleTitle: article.title,
           category,
@@ -156,10 +157,31 @@ export default function ArticleView({ article, category, onBack }: ArticleViewPr
             />
           )}
 
+          {article.extractionFailed && (
+            <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-6">
+              <p className="text-yellow-800 text-sm">
+                <strong>Note:</strong> Full article content could not be extracted (possibly paywalled or protected). 
+                Showing RSS summary instead.
+              </p>
+            </div>
+          )}
+
           <div className="prose prose-lg max-w-none mb-6">
-            <p className="text-gray-700 leading-relaxed">
-              {article.content || article.description}
-            </p>
+            {article.fullContent ? (
+              <div 
+                className="text-gray-700 leading-relaxed"
+                dangerouslySetInnerHTML={{ 
+                  __html: DOMPurify.sanitize(article.fullContent, {
+                    ALLOWED_TAGS: ['p', 'br', 'strong', 'em', 'u', 'a', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'ul', 'ol', 'li', 'blockquote'],
+                    ALLOWED_ATTR: ['href', 'target', 'rel']
+                  })
+                }}
+              />
+            ) : (
+              <p className="text-gray-700 leading-relaxed">
+                {article.content || article.description}
+              </p>
+            )}
           </div>
 
           <a
@@ -168,7 +190,7 @@ export default function ArticleView({ article, category, onBack }: ArticleViewPr
             rel="noopener noreferrer"
             className="text-blue-600 hover:underline text-sm"
           >
-            Read full article →
+            View full article at source →
           </a>
 
           <div className="mt-8 pt-8 border-t border-gray-200">

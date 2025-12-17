@@ -8,6 +8,8 @@ export interface NewsArticle {
     name: string;
   };
   content?: string;
+  fullContent?: string;
+  extractionFailed?: boolean;
 }
 
 export interface Theme {
@@ -28,9 +30,10 @@ export interface AnalysisResponse {
 
 export type Category = 
   | 'israel'
+  | 'middle-east'
   | 'international'
-  | 'politics'
-  | 'human-interest'
+  | 'world-politics'
+  | 'positive-news'
   | 'us-president'
   | 'usa'
   | 'minnesota'
@@ -39,9 +42,10 @@ export type Category =
 
 export const CATEGORY_LABELS: Record<Category, string> = {
   'israel': 'Israel',
-  'international': 'International',
-  'politics': 'World Politics',
-  'human-interest': 'Human Interest',
+  'middle-east': 'Middle East',
+  'international': 'World News',
+  'world-politics': 'World Politics',
+  'positive-news': 'Positive News',
   'us-president': 'US President',
   'usa': 'USA',
   'minnesota': 'Minnesota',
@@ -51,9 +55,10 @@ export const CATEGORY_LABELS: Record<Category, string> = {
 
 export const CATEGORY_QUERIES: Record<Category, string> = {
   'israel': '(israel OR israeli OR jerusalem OR netanyahu) -sports',
-  'international': 'international -israel -usa -sports',
-  'politics': 'politics -sports -entertainment',
-  'human-interest': '(heartwarming OR uplifting OR community OR volunteer OR hero OR rescue OR kindness OR charity OR family OR children) -sports -entertainment -movie -film -celebrity -nfl -football -quarterback -athlete -game -technology -ai -artificial -computer -app -software -tech -gadget -device',
+  'middle-east': '(syria OR iran OR iraq OR lebanon OR jordan OR saudi OR yemen OR qatar OR kuwait OR bahrain OR uae OR dubai OR abu dhabi OR middle east) -israel -sports',
+  'international': '(world OR global OR disaster OR conflict OR humanitarian OR earthquake OR flood OR refugee OR crisis) -politics -election -vote -government -policy -law -legislation -middle east -sports -entertainment',
+  'world-politics': '(politics OR election OR government OR policy OR parliament OR congress OR minister OR president OR vote OR legislation) -sports -entertainment',
+  'positive-news': '(heartwarming OR uplifting OR community OR volunteer OR hero OR rescue OR kindness OR charity OR family OR children OR inspiring OR miracle OR good news) -sports -entertainment -movie -film -celebrity',
   'us-president': '"donald trump" president -sports -entertainment',
   'usa': '(usa OR america) -international -sports',
   'minnesota': 'minnesota -sports -vikings -timberwolves -twins -wild -football -basketball -baseball -hockey -nfl -nba -mlb -nhl -game -athlete -player -coach',

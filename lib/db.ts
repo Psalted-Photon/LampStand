@@ -15,7 +15,9 @@ db.exec(`
     description TEXT,
     published_at TEXT,
     source_name TEXT,
-    fetched_at TEXT DEFAULT CURRENT_TIMESTAMP
+    fetched_at TEXT DEFAULT CURRENT_TIMESTAMP,
+    full_content TEXT,
+    extraction_failed INTEGER DEFAULT 0
   );
 
   CREATE TABLE IF NOT EXISTS analyses (
@@ -49,6 +51,8 @@ export interface Article {
   published_at?: string;
   source_name?: string;
   fetched_at?: string;
+  full_content?: string;
+  extraction_failed?: number;
 }
 
 export interface Analysis {
@@ -68,8 +72,8 @@ export interface Favorite {
 // Article operations
 export function saveArticle(article: Article): number {
   const stmt = db.prepare(`
-    INSERT OR IGNORE INTO articles (url, category, title, content, description, published_at, source_name)
-    VALUES (?, ?, ?, ?, ?, ?, ?)
+    INSERT OR IGNORE INTO articles (url, category, title, content, description, published_at, source_name, full_content, extraction_failed)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
   `);
   const result = stmt.run(
     article.url,
@@ -78,11 +82,26 @@ export function saveArticle(article: Article): number {
     article.content,
     article.description,
     article.published_at,
-    article.source_name
+    article.source_name,
+    article.full_content || null,
+    article.extraction_failed || 0
   );
   
   if (result.changes === 0) {
-    // Article already exists, get its ID
+    // Article already exists, update full_content if provided
+    if (article.full_content !== undefined || article.extraction_failed !== undefined) {
+      const updateStmt = db.prepare(`
+        UPDATE articles 
+        SET full_content = COALESCE(?, full_content),
+            extraction_failed = COALESCE(?, extraction_failed)
+        WHERE url = ?
+      `);
+      updateStmt.run(
+        article.full_content || null,
+        article.extraction_failed !== undefined ? article.extraction_failed : null,
+        article.url
+      );
+    }
     const existing = db.prepare('SELECT id FROM articles WHERE url = ?').get(article.url) as { id: number };
     return existing.id;
   }

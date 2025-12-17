@@ -1,6 +1,7 @@
 'use client';
 
 import { NewsArticle } from '@/lib/types';
+import striptags from 'striptags';
 
 interface ArticleListProps {
   articles: NewsArticle[];
@@ -12,15 +13,15 @@ interface ArticleListProps {
 function stripHtml(html: string): string {
   if (!html) return '';
   
+  // Remove all HTML tags using striptags
+  const stripped = striptags(html);
+  
   // Decode HTML entities
   const txt = document.createElement('textarea');
-  txt.innerHTML = html;
+  txt.innerHTML = stripped;
   const decoded = txt.value;
   
-  // Remove HTML tags
-  const stripped = decoded.replace(/<[^>]*>/g, '');
-  
-  return stripped;
+  return decoded.trim();
 }
 
 // Helper to extract image from HTML content

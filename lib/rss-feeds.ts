@@ -1,8 +1,9 @@
 // RSS Feed sources for each category
 export const RSS_FEEDS = {
   israel: [
-    'https://www.timesofisrael.com/feed/',
-    'https://www.jpost.com/rss/rssfeedsheadlines.aspx',
+    'https://rssmix.com/u/8354817/rss.xml', // AP World News (includes Israel)
+    'https://www.theguardian.com/world/israel/rss', // Guardian Israel section
+    'https://rss.nytimes.com/services/xml/rss/nyt/MiddleEast.xml', // NY Times Middle East
   ],
   international: [
     'https://feeds.bbci.co.uk/news/world/rss.xml',

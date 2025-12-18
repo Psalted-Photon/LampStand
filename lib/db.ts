@@ -17,7 +17,8 @@ db.exec(`
     source_name TEXT,
     fetched_at TEXT DEFAULT CURRENT_TIMESTAMP,
     full_content TEXT,
-    extraction_failed INTEGER DEFAULT 0
+    extraction_failed INTEGER DEFAULT 0,
+    image_url TEXT
   );
 
   CREATE TABLE IF NOT EXISTS analyses (
@@ -41,6 +42,7 @@ db.exec(`
   CREATE INDEX IF NOT EXISTS idx_analyses_article ON analyses(article_id);
 `);
 
+// Article type matching database schema
 export interface Article {
   id?: number;
   url: string;
@@ -53,6 +55,7 @@ export interface Article {
   fetched_at?: string;
   full_content?: string;
   extraction_failed?: number;
+  image_url?: string; // Extracted from article HTML
 }
 
 export interface Analysis {

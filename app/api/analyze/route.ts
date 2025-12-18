@@ -32,7 +32,7 @@ export async function POST(request: NextRequest) {
     const ollamaUrl = process.env.OLLAMA_API_URL || 'http://localhost:11434';
     const ollamaModel = process.env.OLLAMA_MODEL || 'qwen2.5:32b';
     const groqApiKey = process.env.GROQ_API_KEY;
-    const groqModel = process.env.GROQ_MODEL || 'llama-3.1-70b-versatile';
+    const groqModel = process.env.GROQ_MODEL || 'llama-3.3-70b-versatile';
 
     const prompt = `You are a neutral analyst connecting current events to biblical themes. Your task is to analyze news articles and identify possible biblical parallels, themes, and relevant scripture passages without promoting any agenda.
 

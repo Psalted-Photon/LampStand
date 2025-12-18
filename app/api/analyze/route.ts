@@ -4,10 +4,12 @@ import Groq from 'groq-sdk';
 
 export async function POST(request: NextRequest) {
   try {
+    console.log('Analyze endpoint called');
     const body = await request.json();
     const { articleText, articleUrl, articleTitle, category } = body;
 
     if (!articleText) {
+      console.error('No article text provided');
       return NextResponse.json(
         { error: 'Article text is required' },
         { status: 400 }
@@ -33,6 +35,10 @@ export async function POST(request: NextRequest) {
     const ollamaModel = process.env.OLLAMA_MODEL || 'qwen2.5:32b';
     const groqApiKey = process.env.GROQ_API_KEY;
     const groqModel = process.env.GROQ_MODEL || 'llama-3.3-70b-versatile';
+
+    console.log('AI Provider:', aiProvider);
+    console.log('Groq API Key present:', !!groqApiKey);
+    console.log('Groq Model:', groqModel);
 
     const prompt = `You are a neutral analyst connecting current events to biblical themes. Your task is to analyze news articles and identify possible biblical parallels, themes, and relevant scripture passages without promoting any agenda.
 
@@ -73,9 +79,11 @@ Remember: Be neutral and exploratory. Focus on thematic connections and let the 
           if (aiProvider === 'groq') {
             // Groq API implementation
             if (!groqApiKey) {
+              console.error('GROQ_API_KEY not configured');
               throw new Error('GROQ_API_KEY not configured');
             }
 
+            console.log('Creating Groq client...');
             const groq = new Groq({ apiKey: groqApiKey });
             const chatStream = await groq.chat.completions.create({
               messages: [

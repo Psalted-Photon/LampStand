@@ -25,6 +25,7 @@ export default function ArticleView({ article, category, onBack }: ArticleViewPr
     setError('');
 
     try {
+      console.log('Starting analysis for:', article.title);
       const response = await fetch('/api/analyze', {
         method: 'POST',
         headers: {
@@ -38,8 +39,11 @@ export default function ArticleView({ article, category, onBack }: ArticleViewPr
         }),
       });
 
+      console.log('Response status:', response.status);
       if (!response.ok) {
-        throw new Error('Failed to analyze article');
+        const errorData = await response.json().catch(() => ({}));
+        console.error('API error:', errorData);
+        throw new Error(errorData.error || 'Failed to analyze article');
       }
 
       // Check if this is a cached JSON response

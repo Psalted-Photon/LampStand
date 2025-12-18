@@ -34,6 +34,44 @@ export async function GET(
         console.log(`Using cached full content for: ${article.title.substring(0, 50)}...`);
         newsArticle.fullContent = cachedArticle.full_content;
         newsArticle.extractionFailed = !!cachedArticle.extraction_failed;
+        
+        // Prefer cached extracted image over RSS fallback images
+        if (cachedArticle.image_url) {
+          newsArticle.urlToImage = cachedArticle.image_url;
+          console.log(`Using cached extracted image for: ${article.title.substring(0, 50)}...`);
+        } else {
+          // Re-extract to get image for old cached articles without images
+          try {
+            const extractResponse = await fetch(`${request.nextUrl.origin}/api/article/extract`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ url: article.link }),
+            });
+
+            const extractData = await extractResponse.json();
+            
+            if (extractData.success && extractData.image) {
+              newsArticle.urlToImage = extractData.image;
+              console.log(`Extracted and updated image for cached article: ${article.title.substring(0, 50)}...`);
+              
+              // Update database with the extracted image
+              saveArticle({
+                url: article.link,
+                category,
+                title: article.title,
+                content: article.content,
+                description: article.description,
+                published_at: article.pubDate,
+                source_name: article.source,
+                full_content: cachedArticle.full_content,
+                extraction_failed: 0,
+                image_url: extractData.image,
+              });
+            }
+          } catch (error) {
+            console.log(`Image re-extraction failed for: ${article.title.substring(0, 50)}...`);
+          }
+        }
       } else if (cachedArticle?.extraction_failed) {
         console.log(`Extraction previously failed for: ${article.title.substring(0, 50)}...`);
         newsArticle.extractionFailed = true;
@@ -51,10 +89,12 @@ export async function GET(
           if (extractData.success && extractData.content) {
             newsArticle.fullContent = extractData.content;
             
-            // Use extracted image if RSS feed didn't have one
-            if (!newsArticle.urlToImage && extractData.image) {
+            // Prefer extracted images over RSS fallback images
+            if (extractData.image) {
               newsArticle.urlToImage = extractData.image;
               console.log(`Using extracted image for: ${article.title.substring(0, 50)}...`);
+            } else if (!newsArticle.urlToImage) {
+              console.log(`No image found for: ${article.title.substring(0, 50)}...`);
             }
             
             // Save to database
@@ -68,6 +108,7 @@ export async function GET(
               source_name: article.source,
               full_content: extractData.content,
               extraction_failed: 0,
+              image_url: extractData.image || null,
             });
           } else {
             console.log(`Extraction failed for: ${article.title.substring(0, 50)}... - ${extractData.error}`);

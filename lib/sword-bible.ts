@@ -17,51 +17,25 @@ interface Verse {
 // For now, we'll use a simplified approach with a JSON file
 export async function getVerse(reference: string): Promise<Verse | null> {
   try {
-    // Parse reference (e.g., "John 3:16" or "Romans 8:28-30")
-    const match = reference.match(/^(\d?\s?[A-Za-z]+)\s+(\d+):(\d+)(-(\d+))?/);
+    // Use BibleAPI.co (free, no API key required)
+    // Defaults to World English Bible (WEB) translation
+    const cleanRef = reference.replace(/\s+/g, '+');
+    const url = `https://bible-api.com/${cleanRef}`;
     
-    if (!match) {
-      console.error('Invalid verse reference:', reference);
-      return null;
-    }
-
-    const [, book, chapter, startVerse, , endVerse] = match;
-    
-    // For initial implementation, fall back to API.Bible if local module not available
-    // This allows gradual migration
-    const netBibleId = '06125adad2d5898a-01'; // NET translation on API.Bible
-    const apiKey = process.env.BIBLE_API_KEY;
-    
-    if (!apiKey) {
-      return null;
-    }
-
-    const cleanReference = reference.trim();
-    const url = new URL(`https://api.scripture.api.bible/v1/bibles/${netBibleId}/search`);
-    url.searchParams.append('query', cleanReference);
-    url.searchParams.append('limit', '1');
-
-    const response = await fetch(url.toString(), {
-      headers: {
-        'api-key': apiKey,
-      },
-    });
-
+    const response = await fetch(url);
     if (!response.ok) {
-      console.error('Bible API error:', await response.text());
+      console.error('Bible API error:', response.status);
       return null;
     }
-
-    const data = await response.json();
     
-    if (data.data?.passages && data.data.passages.length > 0) {
-      const passage = data.data.passages[0];
+    const bibleData = await response.json();
+    if (bibleData && bibleData.text) {
       return {
-        reference: passage.reference,
-        text: passage.content,
+        reference: bibleData.reference || reference,
+        text: bibleData.text.trim()
       };
     }
-
+    
     return null;
   } catch (error) {
     console.error('Error fetching verse:', error);

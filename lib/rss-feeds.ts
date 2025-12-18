@@ -4,18 +4,11 @@ export const RSS_FEEDS = {
     'https://www.timesofisrael.com/feed/',
     'https://www.jpost.com/rss/rssfeedsheadlines.aspx',
   ],
-  'middle-east': [
-    'https://www.aljazeera.com/xml/rss/middle-east.xml',
-    'https://feeds.bbci.co.uk/news/world/middle_east/rss.xml',
-    'https://rss.nytimes.com/services/xml/rss/nyt/MiddleEast.xml',
-    'https://www.theguardian.com/world/middleeast/rss',
-  ],
   international: [
     'https://feeds.bbci.co.uk/news/world/rss.xml',
     'https://rss.nytimes.com/services/xml/rss/nyt/World.xml',
     'https://www.theguardian.com/world/rss',
     'https://feeds.npr.org/1004/rss.xml',
-    'https://news.google.com/rss/search?q=site%3Areuters.com&hl=en-US&gl=US&ceid=US%3Aen',
   ],
   'world-politics': [
     'https://rssmix.com/u/8354820/rss.xml',
@@ -25,7 +18,6 @@ export const RSS_FEEDS = {
     'http://rss.cnn.com/rss/cnn_allpolitics.rss',
     'http://feeds.foxnews.com/foxnews/politics',
     'https://www.politico.com/rss/politics08.xml',
-    'https://news.google.com/rss/search?q=site%3Areuters.com&hl=en-US&gl=US&ceid=US%3Aen',
   ],
   'positive-news': [
     'https://www.goodnewsnetwork.org/feed/',
@@ -43,14 +35,12 @@ export const RSS_FEEDS = {
     'https://www.newsmax.com/rss/Politics/',
     'https://www.salon.com/category/politics/feed/',
     'https://www.dailykos.com/blogs/main.rss',
-    'https://news.google.com/rss/search?q=site%3Areuters.com&hl=en-US&gl=US&ceid=US%3Aen',
   ],
   usa: [
     'https://rssmix.com/u/8354824/rss.xml',
     'https://feeds.npr.org/1003/rss.xml',
     'https://rss.nytimes.com/services/xml/rss/nyt/US.xml',
     'http://rssfeeds.usatoday.com/UsatodaycomNation-TopStories',
-    'https://news.google.com/rss/search?q=site%3Areuters.com&hl=en-US&gl=US&ceid=US%3Aen',
   ],
   minnesota: [
     'https://www.startribune.com/local/index.rss2',

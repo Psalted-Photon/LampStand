@@ -95,7 +95,6 @@ export async function fetchRSSFeed(url: string): Promise<RSSArticle[]> {
 // Fallback images by category
 const CATEGORY_IMAGES: Record<string, string> = {
   israel: 'https://images.unsplash.com/photo-1544477813-f8e1d0b8e1c0?w=400',
-  'middle-east': 'https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=400',
   international: 'https://images.unsplash.com/photo-1526778548025-fa2f459cd5c1?w=400',
   'world-politics': 'https://images.unsplash.com/photo-1529107386315-e1a2ed48a620?w=400',
   'positive-news': 'https://images.unsplash.com/photo-1469571486292-0ba58a3f068b?w=400',
@@ -117,8 +116,22 @@ export async function fetchCategoryNews(category: Category): Promise<RSSArticle[
     allArticles.push(...articles);
   });
 
+  // Filter out invalid articles (missing title or link)
+  const validArticles = allArticles.filter(article => 
+    article && article.title && typeof article.title === 'string' && article.link
+  );
+
+  // Filter out articles older than 30 days
+  const thirtyDaysAgo = new Date();
+  thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+  
+  const recentArticles = validArticles.filter(article => {
+    const articleDate = new Date(article.pubDate);
+    return articleDate >= thirtyDaysAgo;
+  });
+
   // Remove duplicates based on title similarity
-  const uniqueArticles = allArticles.filter((article, index, self) =>
+  const uniqueArticles = recentArticles.filter((article, index, self) =>
     index === self.findIndex((a) => 
       a.title.toLowerCase().trim() === article.title.toLowerCase().trim() ||
       a.link === article.link
@@ -134,7 +147,44 @@ export async function fetchCategoryNews(category: Category): Promise<RSSArticle[
     }
   });
 
-  // Sort by date (newest first)
+  // For categories with 2 feeds (like Israel), ensure balanced distribution
+  if (feeds.length === 2) {
+    // Group articles by source
+    const sourceGroups = new Map<string, RSSArticle[]>();
+    for (const article of uniqueArticles) {
+      const source = article.source;
+      if (!sourceGroups.has(source)) {
+        sourceGroups.set(source, []);
+      }
+      sourceGroups.get(source)!.push(article);
+    }
+
+    // Sort articles within each source by date
+    for (const articles of sourceGroups.values()) {
+      articles.sort((a, b) => {
+        const dateA = new Date(a.pubDate).getTime();
+        const dateB = new Date(b.pubDate).getTime();
+        return dateB - dateA;
+      });
+    }
+
+    // Interleave articles from both sources (5 from each)
+    const balanced: RSSArticle[] = [];
+    const sources = Array.from(sourceGroups.values());
+    const maxPerSource = 5;
+    
+    for (let i = 0; i < maxPerSource; i++) {
+      for (const sourceArticles of sources) {
+        if (sourceArticles[i]) {
+          balanced.push(sourceArticles[i]);
+        }
+      }
+    }
+
+    return balanced.slice(0, 10);
+  }
+
+  // For categories with more feeds, use date-based sorting
   uniqueArticles.sort((a, b) => {
     const dateA = new Date(a.pubDate).getTime();
     const dateB = new Date(b.pubDate).getTime();

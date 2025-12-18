@@ -35,6 +35,7 @@ export async function POST(request: NextRequest) {
         .trim();
 
       console.log(`Successfully extracted ${fullContent.length} characters from: ${url}`);
+      console.log(`Image found: ${article.image || 'NONE'}`);
 
       return NextResponse.json({
         success: true,

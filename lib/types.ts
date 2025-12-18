@@ -30,7 +30,6 @@ export interface AnalysisResponse {
 
 export type Category = 
   | 'israel'
-  | 'middle-east'
   | 'international'
   | 'world-politics'
   | 'positive-news'
@@ -42,7 +41,6 @@ export type Category =
 
 export const CATEGORY_LABELS: Record<Category, string> = {
   'israel': 'Israel',
-  'middle-east': 'Middle East',
   'international': 'World News',
   'world-politics': 'World Politics',
   'positive-news': 'Positive News',
@@ -55,7 +53,6 @@ export const CATEGORY_LABELS: Record<Category, string> = {
 
 export const CATEGORY_QUERIES: Record<Category, string> = {
   'israel': '(israel OR israeli OR jerusalem OR netanyahu) -sports',
-  'middle-east': '(syria OR iran OR iraq OR lebanon OR jordan OR saudi OR yemen OR qatar OR kuwait OR bahrain OR uae OR dubai OR abu dhabi OR middle east) -israel -sports',
   'international': '(world OR global OR disaster OR conflict OR humanitarian OR earthquake OR flood OR refugee OR crisis) -politics -election -vote -government -policy -law -legislation -middle east -sports -entertainment',
   'world-politics': '(politics OR election OR government OR policy OR parliament OR congress OR minister OR president OR vote OR legislation) -sports -entertainment',
   'positive-news': '(heartwarming OR uplifting OR community OR volunteer OR hero OR rescue OR kindness OR charity OR family OR children OR inspiring OR miracle OR good news) -sports -entertainment -movie -film -celebrity',

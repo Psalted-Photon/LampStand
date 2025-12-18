@@ -42,6 +42,40 @@ export default function ArticleView({ article, category, onBack }: ArticleViewPr
         throw new Error('Failed to analyze article');
       }
 
+      // Check if this is a cached JSON response
+      const contentType = response.headers.get('content-type');
+      if (contentType?.includes('application/json')) {
+        const cachedData = await response.json();
+        if (cachedData.cached && cachedData.analysis) {
+          try {
+            // Extract JSON from markdown code blocks if present
+            let jsonText = cachedData.analysis;
+            const jsonMatch = jsonText.match(/```json\s*([\s\S]*?)\s*```/) || 
+                             jsonText.match(/```\s*([\s\S]*?)\s*```/);
+            if (jsonMatch) {
+              jsonText = jsonMatch[1];
+            }
+            
+            const parsed = JSON.parse(jsonText);
+            setAnalysis(parsed.themes || []);
+            
+            // Fetch scripture texts
+            if (parsed.themes) {
+              for (const theme of parsed.themes) {
+                for (const passage of theme.passages) {
+                  fetchScripture(passage.reference);
+                }
+              }
+            }
+          } catch (parseError) {
+            console.error('Failed to parse cached analysis:', parseError);
+            setError('Cached analysis format was unexpected.');
+          }
+          setAnalyzing(false);
+          return;
+        }
+      }
+
       const reader = response.body?.getReader();
       const decoder = new TextDecoder();
 
@@ -126,10 +160,10 @@ export default function ArticleView({ article, category, onBack }: ArticleViewPr
 
   return (
     <div className="flex flex-col h-full">
-      <div className="p-4 border-b border-gray-200 flex items-center gap-4">
+      <div className="p-4 border-b border-gray-200 flex items-center gap-4 bg-white">
         <button
           onClick={onBack}
-          className="px-4 py-2 text-sm bg-gray-100 hover:bg-gray-200 rounded transition-colors"
+          className="px-4 py-2 text-sm bg-blue-600 hover:bg-blue-700 text-white rounded transition-colors font-medium"
         >
           ← Back
         </button>
@@ -237,8 +271,8 @@ export default function ArticleView({ article, category, onBack }: ArticleViewPr
                     <div className="space-y-6">
                       {theme.passages.map((passage, passageIndex) => (
                         <div key={passageIndex} className="border-l-4 border-blue-500 pl-4">
-                          <div className="flex items-start gap-2 mb-2">
-                            <h4 className="font-semibold text-blue-700">
+                          <div className="flex items-start gap-2 mb-3">
+                            <h4 className="font-semibold text-blue-700 text-lg">
                               {passage.reference}
                             </h4>
                             {passage.isProphetic && (
@@ -248,17 +282,15 @@ export default function ArticleView({ article, category, onBack }: ArticleViewPr
                             )}
                           </div>
                           
-                          <p className="text-gray-700 mb-3">{passage.connection}</p>
-                          
                           {scriptures[passage.reference] && (
-                            <div className="bg-gray-50 p-4 rounded border border-gray-200">
-                              <div className="text-sm text-gray-600 prose prose-sm max-w-none">
-                                <ReactMarkdown>
-                                  {scriptures[passage.reference]}
-                                </ReactMarkdown>
-                              </div>
+                            <div className="bg-blue-50 border border-blue-200 p-4 rounded-lg mb-4">
+                              <p className="text-gray-800 italic leading-relaxed">
+                                "{scriptures[passage.reference]}"
+                              </p>
                             </div>
                           )}
+                          
+                          <p className="text-gray-700 leading-relaxed">{passage.connection}</p>
                         </div>
                       ))}
                     </div>

@@ -3,8 +3,6 @@ export const RSS_FEEDS = {
   israel: [
     'https://www.timesofisrael.com/feed/',
     'https://www.jpost.com/rss/rssfeedsheadlines.aspx',
-    'https://www.i24news.tv/en/rss',
-    'https://www.haaretz.com/cmlink/1.628816',
   ],
   international: [
     'https://feeds.bbci.co.uk/news/world/rss.xml',

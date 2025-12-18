@@ -1,46 +1,56 @@
 import Database from 'better-sqlite3';
 import path from 'path';
 
-const dbPath = path.join(process.cwd(), 'lampstand.db');
-const db = new Database(dbPath);
+// Check if running in Vercel (serverless) where SQLite won't work
+const isVercel = process.env.VERCEL === '1';
+let db: Database.Database | null = null;
 
-// Initialize database schema
-db.exec(`
-  CREATE TABLE IF NOT EXISTS articles (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    url TEXT UNIQUE NOT NULL,
-    category TEXT NOT NULL,
-    title TEXT NOT NULL,
-    content TEXT,
-    description TEXT,
-    published_at TEXT,
-    source_name TEXT,
-    fetched_at TEXT DEFAULT CURRENT_TIMESTAMP,
-    full_content TEXT,
-    extraction_failed INTEGER DEFAULT 0,
-    image_url TEXT
-  );
+if (!isVercel) {
+  try {
+    const dbPath = path.join(process.cwd(), 'lampstand.db');
+    db = new Database(dbPath);
 
-  CREATE TABLE IF NOT EXISTS analyses (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    article_id INTEGER NOT NULL,
-    ollama_response TEXT NOT NULL,
-    created_at TEXT DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (article_id) REFERENCES articles(id)
-  );
+    // Initialize database schema
+    db.exec(`
+      CREATE TABLE IF NOT EXISTS articles (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        url TEXT UNIQUE NOT NULL,
+        category TEXT NOT NULL,
+        title TEXT NOT NULL,
+        content TEXT,
+        description TEXT,
+        published_at TEXT,
+        source_name TEXT,
+        fetched_at TEXT DEFAULT CURRENT_TIMESTAMP,
+        full_content TEXT,
+        extraction_failed INTEGER DEFAULT 0,
+        image_url TEXT
+      );
 
-  CREATE TABLE IF NOT EXISTS favorites (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    article_id INTEGER NOT NULL,
-    user_note TEXT,
-    created_at TEXT DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (article_id) REFERENCES articles(id)
-  );
+      CREATE TABLE IF NOT EXISTS analyses (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        article_id INTEGER NOT NULL,
+        ollama_response TEXT NOT NULL,
+        created_at TEXT DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (article_id) REFERENCES articles(id)
+      );
 
-  CREATE INDEX IF NOT EXISTS idx_articles_url ON articles(url);
-  CREATE INDEX IF NOT EXISTS idx_articles_category ON articles(category);
-  CREATE INDEX IF NOT EXISTS idx_analyses_article ON analyses(article_id);
-`);
+      CREATE TABLE IF NOT EXISTS favorites (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        article_id INTEGER NOT NULL,
+        user_note TEXT,
+        created_at TEXT DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (article_id) REFERENCES articles(id)
+      );
+
+      CREATE INDEX IF NOT EXISTS idx_articles_url ON articles(url);
+      CREATE INDEX IF NOT EXISTS idx_articles_category ON articles(category);
+      CREATE INDEX IF NOT EXISTS idx_analyses_article ON analyses(article_id);
+    `);
+  } catch (error) {
+    console.warn('SQLite database unavailable (running in serverless environment):', error);
+  }
+}
 
 // Article type matching database schema
 export interface Article {
@@ -74,6 +84,8 @@ export interface Favorite {
 
 // Article operations
 export function saveArticle(article: Article): number {
+  if (!db) return 0; // No-op in serverless
+  
   const stmt = db.prepare(`
     INSERT OR IGNORE INTO articles (url, category, title, content, description, published_at, source_name, full_content, extraction_failed)
     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
@@ -113,12 +125,16 @@ export function saveArticle(article: Article): number {
 }
 
 export function getArticleByUrl(url: string): Article | undefined {
+  if (!db) return undefined; // No caching in serverless
+  
   const stmt = db.prepare('SELECT * FROM articles WHERE url = ?');
   return stmt.get(url) as Article | undefined;
 }
 
 // Analysis operations
 export function saveAnalysis(analysis: Analysis): number {
+  if (!db) return 0; // No-op in serverless
+  
   const stmt = db.prepare(`
     INSERT INTO analyses (article_id, ollama_response)
     VALUES (?, ?)
@@ -128,12 +144,16 @@ export function saveAnalysis(analysis: Analysis): number {
 }
 
 export function getAnalysisByArticleId(articleId: number): Analysis | undefined {
+  if (!db) return undefined; // No caching in serverless
+  
   const stmt = db.prepare('SELECT * FROM analyses WHERE article_id = ? ORDER BY created_at DESC LIMIT 1');
   return stmt.get(articleId) as Analysis | undefined;
 }
 
 // Favorite operations
 export function saveFavorite(favorite: Favorite): number {
+  if (!db) return 0; // No-op in serverless
+  
   const stmt = db.prepare(`
     INSERT INTO favorites (article_id, user_note)
     VALUES (?, ?)
@@ -143,6 +163,8 @@ export function saveFavorite(favorite: Favorite): number {
 }
 
 export function getFavorites(): (Article & Favorite)[] {
+  if (!db) return []; // No favorites in serverless
+  
   const stmt = db.prepare(`
     SELECT a.*, f.user_note, f.created_at as favorite_created_at
     FROM favorites f

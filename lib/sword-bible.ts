@@ -113,7 +113,7 @@ function getBookNumber(bookName: string): number | null {
     'ezekiel': 26, 'ezek': 26, 'ezk': 26,
     'daniel': 27, 'dan': 27,
     'hosea': 28, 'hos': 28,
-    'joel': 29, 'joel': 29,
+    'joel': 29,
     'amos': 30, 'amo': 30,
     'obadiah': 31, 'obad': 31, 'oba': 31,
     'jonah': 32, 'jon': 32,

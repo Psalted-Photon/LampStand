@@ -393,7 +393,10 @@ export default function ArticleView({ article, category, onBack }: ArticleViewPr
                         return (
                           <div key={passageIndex} className="border-l-4 border-blue-500 pl-4">
                             <div className="flex items-start gap-2 mb-3">
-                              <h4 className="font-semibold text-blue-700 text-lg">
+                              <h4 
+                                onClick={() => scriptures[passage.reference] && handleVerseClick(passage.reference, globalIndex)}
+                                className="font-semibold text-blue-700 text-lg cursor-pointer hover:text-blue-900 transition-colors"
+                              >
                                 {passage.reference}
                               </h4>
                               {passage.isProphetic && (

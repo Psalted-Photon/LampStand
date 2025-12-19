@@ -1,21 +1,26 @@
 // RSS Feed sources for each category
 export const RSS_FEEDS = {
   israel: [
-    'https://rssmix.com/u/8354817/rss.xml', // AP World News (includes Israel)
-    'https://www.theguardian.com/world/israel/rss', // Guardian Israel section
-    'https://rss.nytimes.com/services/xml/rss/nyt/MiddleEast.xml', // NY Times Middle East
+    'https://www.theguardian.com/world/israel/rss',
+    'https://www.theguardian.com/world/middleeast/rss',
+    'https://rssmix.com/u/8354817/rss.xml',
+    'https://www.timesofisrael.com/feed/',
+    'https://www.jpost.com/rss/rssfeedsheadlines.aspx',
+    'https://www.i24news.tv/en/rss',
+    'https://www.haaretz.com/cmlink/1.628816',
   ],
   international: [
-    'https://feeds.bbci.co.uk/news/world/rss.xml',
-    'https://rss.nytimes.com/services/xml/rss/nyt/World.xml',
     'https://www.theguardian.com/world/rss',
+    'https://www.theguardian.com/international/rss',
+    'https://feeds.bbci.co.uk/news/world/rss.xml',
     'https://feeds.npr.org/1004/rss.xml',
+    'https://www.aljazeera.com/xml/rss/all.xml',
   ],
   'world-politics': [
-    'https://rssmix.com/u/8354820/rss.xml',
     'https://www.theguardian.com/politics/rss',
+    'https://www.theguardian.com/world/rss',
+    'https://rssmix.com/u/8354820/rss.xml',
     'https://feeds.npr.org/1014/rss.xml',
-    'https://rss.nytimes.com/services/xml/rss/nyt/Politics.xml',
     'http://rss.cnn.com/rss/cnn_allpolitics.rss',
     'http://feeds.foxnews.com/foxnews/politics',
     'https://www.politico.com/rss/politics08.xml',
@@ -26,9 +31,9 @@ export const RSS_FEEDS = {
     'https://www.sunnyskyz.com/rss/good-news',
   ],
   'us-president': [
+    'https://www.theguardian.com/us-news/us-politics/rss',
     'https://www.politico.com/rss/politics08.xml',
     'https://www.theatlantic.com/feed/channel/politics/',
-    'https://rss.nytimes.com/services/xml/rss/nyt/Politics.xml',
     'https://feeds.feedburner.com/breitbart',
     'https://www.whitehouse.gov/feed/',
     'https://thehill.com/feed/',
@@ -38,9 +43,9 @@ export const RSS_FEEDS = {
     'https://www.dailykos.com/blogs/main.rss',
   ],
   usa: [
+    'https://www.theguardian.com/us-news/rss',
     'https://rssmix.com/u/8354824/rss.xml',
     'https://feeds.npr.org/1003/rss.xml',
-    'https://rss.nytimes.com/services/xml/rss/nyt/US.xml',
     'http://rssfeeds.usatoday.com/UsatodaycomNation-TopStories',
   ],
   minnesota: [

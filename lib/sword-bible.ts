@@ -11,13 +11,170 @@ const NET_MODULE_URL = 'https://crosswire.org/ftpmirror/pub/sword/packages/rawzi
 interface Verse {
   reference: string;
   text: string;
+  fullChapter?: ChapterVerse[];
+  requestedVerses?: number[];
+  bookNumber?: number;
+  chapterNumber?: number;
+}
+
+interface ChapterVerse {
+  number: number;
+  text: string;
+}
+
+interface BibleBook {
+  name: string;
+  number: number;
+  chapters: number;
+}
+
+// All 66 books of the Bible with chapter counts
+const BIBLE_BOOKS: BibleBook[] = [
+  { name: 'Genesis', number: 1, chapters: 50 },
+  { name: 'Exodus', number: 2, chapters: 40 },
+  { name: 'Leviticus', number: 3, chapters: 27 },
+  { name: 'Numbers', number: 4, chapters: 36 },
+  { name: 'Deuteronomy', number: 5, chapters: 34 },
+  { name: 'Joshua', number: 6, chapters: 24 },
+  { name: 'Judges', number: 7, chapters: 21 },
+  { name: 'Ruth', number: 8, chapters: 4 },
+  { name: '1 Samuel', number: 9, chapters: 31 },
+  { name: '2 Samuel', number: 10, chapters: 24 },
+  { name: '1 Kings', number: 11, chapters: 22 },
+  { name: '2 Kings', number: 12, chapters: 25 },
+  { name: '1 Chronicles', number: 13, chapters: 29 },
+  { name: '2 Chronicles', number: 14, chapters: 36 },
+  { name: 'Ezra', number: 15, chapters: 10 },
+  { name: 'Nehemiah', number: 16, chapters: 13 },
+  { name: 'Esther', number: 17, chapters: 10 },
+  { name: 'Job', number: 18, chapters: 42 },
+  { name: 'Psalms', number: 19, chapters: 150 },
+  { name: 'Proverbs', number: 20, chapters: 31 },
+  { name: 'Ecclesiastes', number: 21, chapters: 12 },
+  { name: 'Song of Solomon', number: 22, chapters: 8 },
+  { name: 'Isaiah', number: 23, chapters: 66 },
+  { name: 'Jeremiah', number: 24, chapters: 52 },
+  { name: 'Lamentations', number: 25, chapters: 5 },
+  { name: 'Ezekiel', number: 26, chapters: 48 },
+  { name: 'Daniel', number: 27, chapters: 12 },
+  { name: 'Hosea', number: 28, chapters: 14 },
+  { name: 'Joel', number: 29, chapters: 3 },
+  { name: 'Amos', number: 30, chapters: 9 },
+  { name: 'Obadiah', number: 31, chapters: 1 },
+  { name: 'Jonah', number: 32, chapters: 4 },
+  { name: 'Micah', number: 33, chapters: 7 },
+  { name: 'Nahum', number: 34, chapters: 3 },
+  { name: 'Habakkuk', number: 35, chapters: 3 },
+  { name: 'Zephaniah', number: 36, chapters: 3 },
+  { name: 'Haggai', number: 37, chapters: 2 },
+  { name: 'Zechariah', number: 38, chapters: 14 },
+  { name: 'Malachi', number: 39, chapters: 4 },
+  { name: 'Matthew', number: 40, chapters: 28 },
+  { name: 'Mark', number: 41, chapters: 16 },
+  { name: 'Luke', number: 42, chapters: 24 },
+  { name: 'John', number: 43, chapters: 21 },
+  { name: 'Acts', number: 44, chapters: 28 },
+  { name: 'Romans', number: 45, chapters: 16 },
+  { name: '1 Corinthians', number: 46, chapters: 16 },
+  { name: '2 Corinthians', number: 47, chapters: 13 },
+  { name: 'Galatians', number: 48, chapters: 6 },
+  { name: 'Ephesians', number: 49, chapters: 6 },
+  { name: 'Philippians', number: 50, chapters: 4 },
+  { name: 'Colossians', number: 51, chapters: 4 },
+  { name: '1 Thessalonians', number: 52, chapters: 5 },
+  { name: '2 Thessalonians', number: 53, chapters: 3 },
+  { name: '1 Timothy', number: 54, chapters: 6 },
+  { name: '2 Timothy', number: 55, chapters: 4 },
+  { name: 'Titus', number: 56, chapters: 3 },
+  { name: 'Philemon', number: 57, chapters: 1 },
+  { name: 'Hebrews', number: 58, chapters: 13 },
+  { name: 'James', number: 59, chapters: 5 },
+  { name: '1 Peter', number: 60, chapters: 5 },
+  { name: '2 Peter', number: 61, chapters: 3 },
+  { name: '1 John', number: 62, chapters: 5 },
+  { name: '2 John', number: 63, chapters: 1 },
+  { name: '3 John', number: 64, chapters: 1 },
+  { name: 'Jude', number: 65, chapters: 1 },
+  { name: 'Revelation', number: 66, chapters: 22 },
+];
+
+// Get next chapter with infinite looping (Revelation 22 → Genesis 1)
+export function getNextChapter(bookNumber: number, chapter: number): { bookNumber: number; chapter: number } {
+  const book = BIBLE_BOOKS.find(b => b.number === bookNumber);
+  if (!book) return { bookNumber: 1, chapter: 1 };
+  
+  // If not last chapter of book, go to next chapter
+  if (chapter < book.chapters) {
+    return { bookNumber, chapter: chapter + 1 };
+  }
+  
+  // Last chapter of book - go to first chapter of next book
+  if (bookNumber < 66) {
+    return { bookNumber: bookNumber + 1, chapter: 1 };
+  }
+  
+  // Revelation 22 - wrap to Genesis 1
+  return { bookNumber: 1, chapter: 1 };
+}
+
+// Get previous chapter with infinite looping (Genesis 1 → Revelation 22)
+export function getPreviousChapter(bookNumber: number, chapter: number): { bookNumber: number; chapter: number } {
+  // If not first chapter of book, go to previous chapter
+  if (chapter > 1) {
+    return { bookNumber, chapter: chapter - 1 };
+  }
+  
+  // First chapter of book - go to last chapter of previous book
+  if (bookNumber > 1) {
+    const prevBook = BIBLE_BOOKS.find(b => b.number === bookNumber - 1);
+    if (prevBook) {
+      return { bookNumber: prevBook.number, chapter: prevBook.chapters };
+    }
+  }
+  
+  // Genesis 1 - wrap to Revelation 22
+  return { bookNumber: 66, chapter: 22 };
+}
+
+// Fetch entire chapter from Bolls.life API
+export async function getChapter(bookNumber: number, chapter: number): Promise<ChapterVerse[]> {
+  const verses: ChapterVerse[] = [];
+  let verseNum = 1;
+  
+  // Loop until we get a 404 (no more verses in chapter)
+  while (true) {
+    try {
+      const url = `https://bolls.life/get-verse/NET/${bookNumber}/${chapter}/${verseNum}/`;
+      const response = await fetch(url);
+      
+      if (!response.ok) {
+        // 404 means no more verses in this chapter
+        break;
+      }
+      
+      const data = await response.json();
+      if (data?.text) {
+        verses.push({
+          number: verseNum,
+          text: data.text.trim()
+        });
+        verseNum++;
+      } else {
+        break;
+      }
+    } catch (error) {
+      console.error(`Error fetching verse ${bookNumber}:${chapter}:${verseNum}:`, error);
+      break;
+    }
+  }
+  
+  return verses;
 }
 
 // NET Bible verse lookup using Bolls.life API (official NET Bible text)
+// Returns requested verse(s) plus full chapter data for expansion
 export async function getVerse(reference: string): Promise<Verse | null> {
   try {
-    // Bolls.life provides official NET Bible text - no API key required
-    // Format: https://bolls.life/get-verse/NET/{bookNumber}/{chapter}/{verse}/
     const parsedRef = parseReference(reference);
     if (!parsedRef) {
       console.error('Invalid verse reference format:', reference);
@@ -26,32 +183,37 @@ export async function getVerse(reference: string): Promise<Verse | null> {
 
     const { bookNumber, chapter, verse, endVerse } = parsedRef;
     
-    // Fetch verse(s)
-    const verses: string[] = [];
+    // Fetch entire chapter
+    const fullChapter = await getChapter(bookNumber, chapter);
+    
+    if (fullChapter.length === 0) {
+      return null;
+    }
+    
+    // Extract requested verse(s) text
+    const requestedVerses: number[] = [];
+    const verseTexts: string[] = [];
     const endV = endVerse || verse;
     
     for (let v = verse; v <= endV; v++) {
-      const url = `https://bolls.life/get-verse/NET/${bookNumber}/${chapter}/${v}/`;
-      const response = await fetch(url);
-      
-      if (!response.ok) {
-        console.error('Bolls.life API error:', response.status);
-        continue;
-      }
-      
-      const data = await response.json();
-      if (data?.text) {
-        verses.push(data.text.trim());
+      const chapterVerse = fullChapter.find(cv => cv.number === v);
+      if (chapterVerse) {
+        requestedVerses.push(v);
+        verseTexts.push(chapterVerse.text);
       }
     }
     
-    if (verses.length === 0) {
+    if (verseTexts.length === 0) {
       return null;
     }
     
     return {
-      reference: reference,
-      text: verses.join(' ')
+      reference,
+      text: verseTexts.join(' '),
+      fullChapter,
+      requestedVerses,
+      bookNumber,
+      chapterNumber: chapter
     };
   } catch (error) {
     console.error('Error fetching verse:', error);

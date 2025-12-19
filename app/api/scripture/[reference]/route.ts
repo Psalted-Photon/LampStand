@@ -15,6 +15,10 @@ export async function GET(
       return NextResponse.json({
         reference: verse.reference,
         text: verse.text,
+        fullChapter: verse.fullChapter || [],
+        requestedVerses: verse.requestedVerses || [],
+        bookNumber: verse.bookNumber,
+        chapterNumber: verse.chapterNumber,
       });
     }
 

@@ -3,7 +3,7 @@ export const RSS_FEEDS = {
   israel: [
     'https://www.theguardian.com/world/israel/rss',
     'https://www.theguardian.com/world/middleeast/rss',
-    'https://rssmix.com/u/8354817/rss.xml',
+    
     'https://www.timesofisrael.com/feed/',
     'https://www.jpost.com/rss/rssfeedsheadlines.aspx',
     'https://www.i24news.tv/en/rss',
@@ -18,11 +18,11 @@ export const RSS_FEEDS = {
   ],
   'world-politics': [
     'https://www.theguardian.com/politics/rss',
-    'https://www.theguardian.com/world/rss',
-    'https://rssmix.com/u/8354820/rss.xml',
+    
+    
     'https://feeds.npr.org/1014/rss.xml',
     'http://rss.cnn.com/rss/cnn_allpolitics.rss',
-    'http://feeds.foxnews.com/foxnews/politics',
+    
     'https://www.politico.com/rss/politics08.xml',
   ],
   'positive-news': [
@@ -44,7 +44,7 @@ export const RSS_FEEDS = {
   ],
   usa: [
     'https://www.theguardian.com/us-news/rss',
-    'https://rssmix.com/u/8354824/rss.xml',
+    
     'https://feeds.npr.org/1003/rss.xml',
     'http://rssfeeds.usatoday.com/UsatodaycomNation-TopStories',
   ],

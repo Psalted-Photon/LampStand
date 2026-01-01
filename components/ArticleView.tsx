@@ -5,6 +5,11 @@ import { useState, useRef, useEffect } from 'react';
 import ReactMarkdown from 'react-markdown';
 import DOMPurify from 'isomorphic-dompurify';
 
+// Strip HTML tags from scripture text
+function stripHtml(html: string): string {
+  return html.replace(/<[^>]*>/g, '');
+}
+
 interface ChapterVerse {
   number: number;
   text: string;
@@ -412,7 +417,7 @@ export default function ArticleView({ article, category, onBack }: ArticleViewPr
                                 className="bg-blue-50 border border-blue-200 p-4 rounded-lg mb-4 cursor-pointer hover:bg-blue-100 transition-colors"
                               >
                                 <p className="text-gray-800 italic leading-relaxed">
-                                  "{scriptures[passage.reference].text}"
+                                  "{stripHtml(scriptures[passage.reference].text)}"
                                 </p>
                               </div>
                             )}
@@ -456,7 +461,7 @@ export default function ArticleView({ article, category, onBack }: ArticleViewPr
                                         className={`mb-2 ${isHighlighted ? 'bg-blue-700 text-white' : 'text-gray-800'} p-2 rounded`}
                                       >
                                         <span className="font-semibold mr-2">{verse.number}.</span>
-                                        {verse.text}
+                                        {stripHtml(verse.text)}
                                       </p>
                                     );
                                   })}

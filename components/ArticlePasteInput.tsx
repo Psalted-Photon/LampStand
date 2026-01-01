@@ -50,14 +50,14 @@ export default function ArticlePasteInput({ onAnalyze }: ArticlePasteInputProps)
         value={title}
         onChange={(e) => setTitle(e.target.value)}
         placeholder="Article title..."
-        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900"
       />
       
       <textarea
         value={text}
         onChange={(e) => setText(e.target.value)}
         placeholder="Paste article text or URL here..."
-        className="w-full h-32 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
+        className="w-full h-32 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none text-gray-900"
       />
       
       <div className="flex gap-2">
